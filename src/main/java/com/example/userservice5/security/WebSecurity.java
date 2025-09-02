@@ -8,6 +8,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,11 +20,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @EnableWebSecurity
 @Configuration
 public class WebSecurity {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final UserRepository userRepository;
     private final UserService userService;
     private AuthenticationManager authenticationManager;
     private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -31,14 +32,12 @@ public class WebSecurity {
     private CustomAuthorizationFilter customAuthorizationFilter;
 
     public WebSecurity(BCryptPasswordEncoder bCryptPasswordEncoder,
-                       UserRepository userRepository,
                        UserService userService,
                        CustomAccessDeniedHandler customAccessDeniedHandler,
                        CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
                        CustomAuthorizationFilter customAuthorizationFilter
                        ) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.userRepository = userRepository;
         this.userService = userService;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
@@ -53,8 +52,6 @@ public class WebSecurity {
 
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(csrf->csrf.disable())
-                .exceptionHandling((exception)->exception.accessDeniedHandler(customAccessDeniedHandler))
-                .exceptionHandling((exception)->exception.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .authorizeHttpRequests(
                         (auth) -> auth
                                 .requestMatchers(HttpMethod.POST, "/users/signup")
@@ -67,7 +64,12 @@ public class WebSecurity {
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/users/verify-email/**")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                                 .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .authenticationManager(authenticationManager);
         http.addFilterBefore(customAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);

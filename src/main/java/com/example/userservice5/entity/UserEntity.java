@@ -50,6 +50,10 @@ public class UserEntity implements Serializable {
     )
     private Collection<RoleEntity> roles;
 
+    @OneToMany(mappedBy = "userDetail")
+    private Collection<PitchEntity> pitches;
+
+
     @CreationTimestamp
     @Setter(value = AccessLevel.NONE)
     @Column(name = "created_at", updatable = false, nullable = false)
@@ -137,4 +141,11 @@ public class UserEntity implements Serializable {
         deletedAt = LocalDateTime.now();
     }
 
+    public Collection<PitchEntity> getPitches() {
+        return pitches;
+    }
+
+    public void setPitches(Collection<PitchEntity> pitches) {
+        this.pitches = pitches;
+    }
 }

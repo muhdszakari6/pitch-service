@@ -14,6 +14,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -77,7 +80,18 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username);
         if(user == null) throw new UsernameNotFoundException(username);
-        return new User(user.getEmail(),user.getPassword(),true,true,true,true, new ArrayList<>());
+
+        Collection<GrantedAuthority> authorities = new HashSet<>();
+        Collection<RoleEntity> roles = user.getRoles();
+        if(roles.isEmpty()){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"User does not have roles");
+        }
+
+        roles.forEach((role)->{
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        });
+
+        return new User(user.getEmail(),user.getPassword(),true,true,true,true, authorities);
     }
 
     @Transactional

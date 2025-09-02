@@ -1,7 +1,7 @@
 package com.example.userservice5.dto;
 
 public class UserDto {
-    private String id;
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;
@@ -10,11 +10,11 @@ public class UserDto {
     private String confirmPassword;
     private Boolean emailVerificationStatus;
     private String emailVerificationToken;
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
