@@ -90,4 +90,8 @@ public class PitchDto {
     public void setUserDetail(UserDto user) {
         this.userDetail = user;
     }
+
+    public Long getSessionCount() {
+        return sessions != null ? (long) sessions.size() : 0L;
+    }
 }

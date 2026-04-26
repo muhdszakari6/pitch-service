@@ -32,10 +32,11 @@ public class InitialUserSetup {
 //        AuthorityEntity writeAuthority = createAuthority("WRITE_AUTHORITY");
 //        AuthorityEntity deleteAuthority = createAuthority("DELETE_AUTHORITY");
 
-        RoleEntity roleAdmin = createRole("ROLE_ADMIN");
+        RoleEntity roleSuperAdmin = createRole("ROLE_SUPER_ADMIN");
+        RoleEntity rolePartner = createRole("ROLE_PARTNER");
         RoleEntity roleUser = createRole("ROLE_USER");
 
-        if(roleAdmin==null){
+        if(roleSuperAdmin==null){
             return;
         }
 
@@ -43,9 +44,9 @@ public class InitialUserSetup {
         adminUser.setFirstName("Salim");
         adminUser.setLastName("Zakari");
         adminUser.setEmail("salimzakari600@gmail.com");
-        adminUser.setUserId(utils.generateUserId(30));
+        adminUser.setUserId(utils.generateUserId());
         adminUser.setPassword(bCryptPasswordEncoder.encode("salim"));
-        adminUser.setRoles(Arrays.asList(roleAdmin, roleUser));
+        adminUser.setRoles(Arrays.asList(roleSuperAdmin, roleUser));
         UserEntity user = userRepository.findByEmail("salimzakari600@gmail.com");
         if(user==null){
             userRepository.save(adminUser);

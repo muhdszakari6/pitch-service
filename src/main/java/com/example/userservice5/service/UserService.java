@@ -16,7 +16,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,7 +24,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,15 +32,26 @@ import java.util.HashSet;
 public class UserService implements UserDetailsService {
     @Autowired
     UserRepository userRepository;
+
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     RoleRepository roleRepository;
+
     @Autowired
     PasswordResetRepository passwordResetRepository;
+
     public UserDto createUser(UserDto dto) {
-        RoleEntity roleUser = createRole("ROLE_USER");
+        return createUserWithRole(dto, "ROLE_USER");
+    }
+
+    public UserDto createPartner(UserDto dto) {
+        return createUserWithRole(dto, "ROLE_PARTNER");
+    }
+
+    public UserDto createUserWithRole(UserDto dto, String role) {
+        RoleEntity roleUser = createRole(role);
         ModelMapper mapper = new ModelMapper();
         String email = dto.getEmail();
         UserEntity existingUser = userRepository.findByEmail(email);
@@ -52,10 +61,9 @@ public class UserService implements UserDetailsService {
         if(!dto.getPassword().equals(dto.getConfirmPassword())){{
             throw new ApiException(HttpStatus.BAD_REQUEST, "Password does not match");
         }}
-        String userId = Utils.generateUserId(10);
+        String userId = Utils.generateUserId();
         String token = Utils.generateEmailVerificationToken(userId);
         UserEntity user = mapper.map(dto, UserEntity.class);
-        Collection<RoleEntity> roles = new ArrayList<>();
         user.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         user.setUserId(userId);
         user.setEmailVerificationToken(token);
@@ -65,7 +73,6 @@ public class UserService implements UserDetailsService {
         UserDto returnValue = mapper.map(createdUser, UserDto.class);
         return returnValue;
     }
-
     public Boolean verifyEmail(String token) {
         UserEntity user = userRepository.findByEmailVerificationToken(token);
         if(Utils.hasTokenExpired(token)) throw new ApiException(HttpStatus.BAD_REQUEST, "Token has expired");
@@ -80,7 +87,6 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username);
         if(user == null) throw new UsernameNotFoundException(username);
-
         Collection<GrantedAuthority> authorities = new HashSet<>();
         Collection<RoleEntity> roles = user.getRoles();
         if(roles.isEmpty()){

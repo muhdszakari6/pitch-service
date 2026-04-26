@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.security.access.AccessDeniedException;
+
 
 import java.util.Date;
 
@@ -32,6 +34,16 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         error.setTimeStamp(new Date());
         return ResponseEntity.status(error.getStatus()).contentType(MediaType.APPLICATION_JSON).body(error);
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex){
+        ApiError error = new ApiError();
+        error.setStatus(HttpStatus.FORBIDDEN);
+        error.setMessage("Access denied: You don't have permission to access this resource");
+        error.setTimeStamp(new Date());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(error);
+    }
+
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,

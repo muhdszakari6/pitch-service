@@ -32,6 +32,14 @@ public class UserController {
         return ResponseEntity.status(200).body(mapper.map(returnValue, UserSignupResponse.class));
     }
 
+    @PostMapping("/partners/signup")
+    public ResponseEntity<UserSignupResponse> partnerSignup(@RequestBody @Valid UserSignupRequest request) {
+        ModelMapper mapper = new ModelMapper();
+        UserDto dto = mapper.map(request, UserDto.class);
+        UserDto returnValue = userService.createPartner(dto);
+        return ResponseEntity.status(200).body(mapper.map(returnValue, UserSignupResponse.class));
+    }
+
     @GetMapping(path = "/verify-email")
     public ResponseEntity<OperationStatusModel> verifyEmail(@RequestParam(name = "token") String token){
         OperationStatusModel returnValue = new OperationStatusModel( "Failed", "Email Verification");
@@ -65,8 +73,7 @@ public class UserController {
         return ResponseEntity.status(200).body(returnValue);
     }
 
-//    @Secured("ROLE_ADMIN")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "")
     public ArrayList<String> getUsers(){
         return new ArrayList<>();

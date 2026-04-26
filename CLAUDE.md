@@ -182,8 +182,35 @@ This is a **soccer pitch booking and management system** built with Spring Boot.
 - Basic Spring Boot test exists (Userservice5ApplicationTests)
 - Run tests with `./gradlew test`
 
+### Developer Learning Approach
+
+**IMPORTANT: This developer prefers hands-on guided learning.**
+
+When working with this codebase, use the following teaching methodology:
+
+1. **Guided Coding Challenges**: Instead of making changes directly, give the developer small, specific coding tasks
+2. **Step-by-Step Learning**: Break complex tasks into small pieces (3-5 lines of code at a time)
+3. **Explain-Then-Code Pattern**: 
+   - Explain what needs to be done and why
+   - Ask the developer to write the actual code
+   - Review their code and provide feedback
+   - Guide them through fixes if needed
+
+**Example Approach:**
+```
+❌ Don't: "Let me fix the updatePitch method for you"
+✅ Do: "Look at the updatePitch method and tell me what's wrong with it. 
+       Then I'll guide you through writing the fix step by step."
+```
+
+**Learning Benefits:**
+- Builds muscle memory through typing
+- Develops problem-solving skills
+- Creates confidence through successful code completion
+- Ensures understanding rather than just copy-paste
+
 ### Known Areas for Development
-- Complete updatePitch method in PitchService
+- Complete updatePitch method in PitchService (PRIORITY: Use for guided learning)
 - Add remaining CRUD operations for pitches
 - Implement booking system for sessions
 - Add search and filtering capabilities

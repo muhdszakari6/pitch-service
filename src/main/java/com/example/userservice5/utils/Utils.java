@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Random;
+import java.util.UUID;
 
 @Component
 public class Utils {
@@ -30,17 +31,10 @@ public class Utils {
                 .compact();
         return token;
     }
-    public static String generateUserId(int length){
-        return generateRandomString(length);
+    public static String generateUserId(){
+        return UUID.randomUUID().toString();
     }
 
-    private static String generateRandomString(int length){
-        StringBuilder returnValue = new StringBuilder(length);
-        for(int i = 0;i<length; i++){
-            returnValue.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
-        }
-        return new String(returnValue);
-    }
 
     public static boolean hasTokenExpired(String token){
         Claims claims = Jwts.parser()

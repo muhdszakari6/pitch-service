@@ -4,6 +4,7 @@ import com.example.userservice5.enums.PitchType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,27 +17,34 @@ import java.util.Collection;
 @Entity
 @Table(name = "pitch")
 public class PitchEntity implements Serializable {
+
     private static final long serialVersionUID = -7986089247891906665L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column()
     private Long id;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "location")
     private String location;
+
     @Column(name = "type")
     private PitchType type;
+
     @CreationTimestamp
     @Setter(value = AccessLevel.NONE)
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     @Setter(value = AccessLevel.NONE)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "pitch", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "pitch", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<SessionEntity> sessions;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -51,6 +59,10 @@ public class PitchEntity implements Serializable {
     },fetch = FetchType.LAZY )
     @JoinColumn(name = "users_id")
     private UserEntity userDetail;
+
+    @Getter
+    @Setter
+    private LocalDateTime deletedAt;
 
     public UserEntity getUserDetail() {
         return userDetail;

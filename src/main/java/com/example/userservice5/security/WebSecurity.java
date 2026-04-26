@@ -1,6 +1,5 @@
 package com.example.userservice5.security;
 
-import com.example.userservice5.repository.UserRepository;
 import com.example.userservice5.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,6 +55,8 @@ public class WebSecurity {
                         (auth) -> auth
                                 .requestMatchers(HttpMethod.POST, "/users/signup")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users/partners/signup")
+                                .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/users/initiate-reset-password")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/users/reset-password")
@@ -64,7 +65,6 @@ public class WebSecurity {
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/users/verify-email/**")
                                 .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
