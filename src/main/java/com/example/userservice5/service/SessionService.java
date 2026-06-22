@@ -3,13 +3,11 @@ package com.example.userservice5.service;
 import com.example.userservice5.entity.BookingEntity;
 import com.example.userservice5.entity.SessionEntity;
 import com.example.userservice5.model.response.AvailableSessionResponse;
-import com.example.userservice5.model.response.SessionResponse;
 import com.example.userservice5.repository.BookingRepository;
 import com.example.userservice5.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;

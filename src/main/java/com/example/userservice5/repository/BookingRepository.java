@@ -19,11 +19,11 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long>, J
     Optional<BookingEntity> findBySessionAndBookingDateAndDeletedAtIsNull(SessionEntity session, LocalDate bookingDate);
 
     @Query(value = "SELECT b FROM BookingEntity  b " +
-            "LEFT JOIN b.session s " +
+            "LEFT JOIN FETCH b.session s " +
             "LEFT JOIN s.pitch p " +
             "WHERE (p.id = :pitchId) " +
             "AND (b.bookingDate = :bookingDate) " +
-            "AND (b.deletedAt IS NOT NULL )" +
+            "AND (b.deletedAt IS NULL) " +
             "ORDER BY b.createdAt DESC")
     List<BookingEntity> findBookingEntitiesByPitchAndDate(@Param("pitchId") Long pitchId, @Param("bookingDate") LocalDate bookingDate);
 

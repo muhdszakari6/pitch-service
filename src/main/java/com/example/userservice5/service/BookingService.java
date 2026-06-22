@@ -52,6 +52,8 @@ public class BookingService {
                 bookingDto.setUser(managedUser);
                 bookingDto.setUserEmail(managedUser.getEmail());
             }
+        } else if (bookingDto.getUserEmail() == null || bookingDto.getUserEmail().isBlank()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Please provide a valid email");
         }
 
         ModelMapper modelMapper = new ModelMapper();
