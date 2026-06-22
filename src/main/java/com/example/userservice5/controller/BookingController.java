@@ -2,9 +2,12 @@ package com.example.userservice5.controller;
 
 import com.example.userservice5.dto.BookingDto;
 import com.example.userservice5.entity.BookingEntity;
+import com.example.userservice5.enums.BookingStatus;
+import com.example.userservice5.model.request.BookingRequest;
 import com.example.userservice5.model.request.CreateBookingRequest;
 import com.example.userservice5.model.response.BookingResponse;
 import com.example.userservice5.model.response.GetPitchResponse;
+import com.example.userservice5.model.response.OperationStatusModel;
 import com.example.userservice5.service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +40,11 @@ public class BookingController {
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) LocalDate bookingDate,
             @RequestParam(required = false) Long pitchId,
+            @RequestParam(required = false) Boolean deleted,
+            @RequestParam(required = false) BookingStatus bookingStatus,
             Pageable pageable){
         ModelMapper mapper = new ModelMapper();
-        Page<BookingEntity> bookingEntities = bookingService.getBookings(userId, bookingDate, pitchId, pageable);
+        Page<BookingEntity> bookingEntities = bookingService.getBookings(userId, bookingDate, pitchId, pageable, deleted, bookingStatus);
         return bookingEntities.map(booking -> {
             BookingResponse response = mapper.map(booking, BookingResponse.class);
             response.setPitch(booking.getSession().getPitch().getName());
@@ -53,15 +58,53 @@ public class BookingController {
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) LocalDate bookingDate,
             @RequestParam(required = false) Long pitchId,
-            Pageable pageable
-    ){
+            @RequestParam(required = false) Boolean deleted,
+            Pageable pageable,
+            @RequestParam(required = false) BookingStatus bookingStatus
+            ){
         ModelMapper mapper = new ModelMapper();
-        Page<BookingEntity> bookingEntities = bookingService.getPartnerBookings(userId, bookingDate, pitchId, pageable);
+        Page<BookingEntity> bookingEntities = bookingService.getPartnerBookings(userId, bookingDate, pitchId, pageable, deleted, bookingStatus);
         return bookingEntities.map(booking -> {
             BookingResponse response = mapper.map(booking, BookingResponse.class);
             response.setPitch(booking.getSession().getPitch().getName());
             return response;
         });
     }
+
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/me")
+    public Page<BookingResponse> getUserBookings(
+            @RequestParam(required = false) LocalDate bookingDate,
+            @RequestParam(required = false) Long pitchId,
+            Pageable pageable,
+            @RequestParam(required = false) BookingStatus bookingStatus
+    ){
+        ModelMapper mapper = new ModelMapper();
+        Page<BookingEntity> bookingEntities = bookingService.getUserBookings(bookingDate, pitchId, pageable, bookingStatus);
+        return bookingEntities.map(booking -> {
+            BookingResponse response = mapper.map(booking, BookingResponse.class);
+            response.setPitch(booking.getSession().getPitch().getName());
+            return response;
+        });
+    }
+
+    @PreAuthorize("hasAnyRole('PARTNER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<OperationStatusModel> deleteBooking(@PathVariable Long id){
+        bookingService.deleteBooking(id);
+        OperationStatusModel returnValue = new OperationStatusModel( "Successful", "Delete Booking");
+        return ResponseEntity.status(200).body(returnValue);
+    }
+
+    @PreAuthorize("hasAnyRole('PARTNER')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<OperationStatusModel>  updateBookingStatus(@PathVariable Long id, @Valid @RequestBody BookingRequest bookingStatus){
+        bookingService.updateStatus(id, bookingStatus);
+        OperationStatusModel returnValue = new OperationStatusModel("Successful", "Update Booking Status");
+        return ResponseEntity.status(200).body(returnValue);
+    }
+
+
 
 }
