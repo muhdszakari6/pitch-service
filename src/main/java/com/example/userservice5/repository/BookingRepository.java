@@ -18,6 +18,8 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<BookingEntity, Long>, JpaSpecificationExecutor<BookingEntity> {
     Optional<BookingEntity> findBySessionAndBookingDateAndDeletedAtIsNull(SessionEntity session, LocalDate bookingDate);
 
+    boolean existsBySessionAndDeletedAtIsNull(SessionEntity session);
+
     @Query(value = "SELECT b FROM BookingEntity  b " +
             "LEFT JOIN FETCH b.session s " +
             "LEFT JOIN s.pitch p " +

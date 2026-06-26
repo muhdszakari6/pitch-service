@@ -110,14 +110,17 @@ public class SessionEntity implements Serializable {
     }
 
     public void setPitch(PitchEntity pitch) {
-        // Remove from old pitch if exists
+        // Sync both sides of the bidirectional relationship in memory so that
+        // pitch.getSessions() and session.getPitch() stay consistent within the
+        // same transaction. Only this.pitch = pitch is persisted to the DB (pitch_id FK);
+        // the list updates below are purely in-memory to prevent stale reads.
+
         if (this.pitch != null && this.pitch.getSessions() != null) {
             this.pitch.getSessions().remove(this);
         }
-        
+
         this.pitch = pitch;
-        
-        // Add to new pitch if exists
+
         if (pitch != null && pitch.getSessions() != null && !pitch.getSessions().contains(this)) {
             pitch.getSessions().add(this);
         }

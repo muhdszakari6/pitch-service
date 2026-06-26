@@ -7,6 +7,7 @@ import com.example.userservice5.entity.SessionEntity;
 import com.example.userservice5.entity.UserEntity;
 import com.example.userservice5.enums.CreationMode;
 import com.example.userservice5.exception.ApiException;
+import com.example.userservice5.repository.BookingRepository;
 import com.example.userservice5.repository.PitchRepository;
 import com.example.userservice5.repository.SessionConfigurationRepository;
 import com.example.userservice5.repository.SessionRepository;
@@ -34,6 +35,7 @@ import java.util.Optional;
 public class PitchService {
     private final PitchRepository pitchRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Transactional()
     public PitchDto createPitch(PitchDto requestBody) {
@@ -120,7 +122,11 @@ public class PitchService {
                 .filter(existingSession -> existingSession.getId() != null)
                 .filter(session -> !requestSessionIds.contains(session.getId())).toList();
 
-        sessionsToRemove.forEach(pitchEntity::removeSession);
+        sessionsToRemove.forEach(session -> {
+            if (!bookingRepository.existsBySessionAndDeletedAtIsNull(session)) {
+                pitchEntity.removeSession(session);
+            }
+        });
 
         PitchEntity updatedPitch = pitchRepository.save(pitchEntity);
 
