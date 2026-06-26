@@ -6,6 +6,8 @@ import com.example.userservice5.entity.PasswordResetTokenEntity;
 import com.example.userservice5.entity.RoleEntity;
 import com.example.userservice5.entity.UserEntity;
 import com.example.userservice5.exception.ApiException;
+import com.example.userservice5.model.request.ChangePasswordRequest;
+import com.example.userservice5.model.request.UpdateUserRequest;
 import com.example.userservice5.model.response.ProfileResponse;
 import com.example.userservice5.repository.PasswordResetRepository;
 import com.example.userservice5.repository.RoleRepository;
@@ -159,9 +161,38 @@ public class UserService implements UserDetailsService {
 
     public ProfileResponse getUser() {
         ModelMapper mapper = new ModelMapper();
+        UserEntity existingUser = validateUser();
+        return mapper.map(existingUser, ProfileResponse.class);
+    }
+
+    public ProfileResponse updateUser(UpdateUserRequest updateUserRequest) {
+        ModelMapper mapper = new ModelMapper();
+        UserEntity existingUser = validateUser();
+        existingUser.setFirstName(updateUserRequest.getFirstName());
+        existingUser.setLastName(updateUserRequest.getLastName());
+        UserEntity returnValue = userRepository.save(existingUser);
+        return mapper.map(returnValue, ProfileResponse.class);
+    }
+
+    public ProfileResponse changePassword(ChangePasswordRequest changePasswordRequest) {
+        UserEntity existingUser = validateUser();
+        ModelMapper mapper = new ModelMapper();
+
+        if(!bCryptPasswordEncoder.matches(changePasswordRequest.getOldPassword(), existingUser.getPassword())){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"Old password does not match");
+        }
+        if(!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"New password does not match");
+        }
+        existingUser.setPassword(bCryptPasswordEncoder.encode(changePasswordRequest.getNewPassword()));
+        UserEntity returnValue = userRepository.save(existingUser);
+        return mapper.map(returnValue, ProfileResponse.class);
+    }
+
+    private UserEntity validateUser(){
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserEntity existingUser = userPrincipal.getUserEntity();
         if(existingUser == null) throw new ApiException(HttpStatus.BAD_REQUEST,"User does not exist");
-        return mapper.map(existingUser, ProfileResponse.class);
+        return existingUser;
     }
 }

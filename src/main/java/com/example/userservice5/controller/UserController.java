@@ -2,9 +2,7 @@ package com.example.userservice5.controller;
 
 import com.example.userservice5.dto.ResetPasswordDto;
 import com.example.userservice5.dto.UserDto;
-import com.example.userservice5.model.request.InitiateResetPasswordRequest;
-import com.example.userservice5.model.request.ResetPasswordRequest;
-import com.example.userservice5.model.request.UserSignupRequest;
+import com.example.userservice5.model.request.*;
 import com.example.userservice5.model.response.OperationStatusModel;
 import com.example.userservice5.model.response.ProfileResponse;
 import com.example.userservice5.model.response.UserSignupResponse;
@@ -83,6 +81,18 @@ public class UserController {
     @GetMapping(path = "/me")
     public ResponseEntity<ProfileResponse> getCurrentUser(){
         ProfileResponse user = userService.getUser();
+        return ResponseEntity.status(200).body(user);
+    }
+
+    @PutMapping(path = "/me")
+    public ResponseEntity<ProfileResponse> updateCurrentUser(@RequestBody @Valid UpdateUserRequest updateUserRequest){
+        ProfileResponse user = userService.updateUser(updateUserRequest);
+        return ResponseEntity.status(200).body(user);
+    }
+
+    @PostMapping(path = "/changePassword")
+    public ResponseEntity<ProfileResponse> updateCurrentUser(@RequestBody @Valid ChangePasswordRequest changePasswordRequest){
+        ProfileResponse user = userService.changePassword(changePasswordRequest);
         return ResponseEntity.status(200).body(user);
     }
 }
