@@ -1,0 +1,9 @@
+services:
+  pitch-posgresql:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=user_app5
+      - POSTGRES_PASSWORD=salim
+      - POSTGRES_USER=salim
