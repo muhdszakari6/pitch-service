@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<BookingEntity, Long>, JpaSpecificationExecutor<BookingEntity> {
     Optional<BookingEntity> findBySessionAndBookingDateAndDeletedAtIsNullAndStatus(SessionEntity session, LocalDate bookingDate, BookingStatus status);
-
+    List<BookingEntity> findBySessionAndBookingDateAndStatusAndIdNot(SessionEntity session, LocalDate bookingDate, BookingStatus status, Long id);
     boolean existsBySessionAndDeletedAtIsNull(SessionEntity session);
 
     @Query(value = "SELECT b FROM BookingEntity  b " +

@@ -9,16 +9,13 @@ import com.example.userservice5.enums.BookingStatus;
 import com.example.userservice5.exception.ApiException;
 import com.example.userservice5.model.request.BookingRequest;
 import com.example.userservice5.model.response.BookingResponse;
-import com.example.userservice5.model.response.GetPitchResponse;
 import com.example.userservice5.repository.BookingRepository;
 import com.example.userservice5.repository.SessionRepository;
 import com.example.userservice5.repository.UserRepository;
 import com.example.userservice5.security.UserPrincipal;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -112,6 +110,11 @@ public class BookingService {
         BookingEntity bookingEntity = validateBooking(id);
         bookingEntity.setStatus(bookingStatus.getStatus());
         bookingRepository.save(bookingEntity);
+        if(bookingStatus.getStatus() == BookingStatus.SUCCESSFUL) {
+            List<BookingEntity> otherBookings = bookingRepository.findBySessionAndBookingDateAndStatusAndIdNot(bookingEntity.getSession(), bookingEntity.getBookingDate(), BookingStatus.PENDING, bookingEntity.getId());
+            otherBookings.forEach(booking -> booking.setStatus(BookingStatus.FAILED));
+            bookingRepository.saveAll(otherBookings);
+        }
     }
 
     private BookingEntity validateBooking(Long id) {

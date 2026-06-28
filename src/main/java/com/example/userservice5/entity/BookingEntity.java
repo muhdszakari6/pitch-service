@@ -14,9 +14,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "booking",
-        uniqueConstraints = { @UniqueConstraint(name = "UniqueSessionAndDate", columnNames = { "session_id", "booking_date" }
-        )})
+        name = "booking"
+        //Will bring this back when use case for bookings turns to a first come fist serve basis
+//        uniqueConstraints = { @UniqueConstraint(name = "UniqueSessionAndDate", columnNames = { "session_id", "booking_date" }
+//        )}
+        )
 public class BookingEntity implements Serializable {
 
     private static final long serialVersionUID = 8059871061120284233L;
